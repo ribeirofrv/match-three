@@ -35,8 +35,27 @@ func spawn_pieces():
 		for row in heigth:
 			var random = floor(rand_range(0, possible_pieces.size()));
 			var piece  = possible_pieces[random].instance();
+			
+			var loops = 0;
+			while(match_at(column, row, piece.color) && (loops < 100)):
+				random = floor(rand_range(0, possible_pieces.size()));
+				loops += 1;
+				piece  = possible_pieces[random].instance();
+			
 			add_child(piece);
 			piece.position = grid_to_pixel(column, row);
+			all_pieces[column][row] = piece;
+
+func match_at(column, row, color):
+	if column > 1:
+		if all_pieces[column - 1][row] != null && all_pieces[column - 2][row] != null:
+			if all_pieces[column - 1][row].color == color && all_pieces[column - 2][row].color == color:
+				return true;
+	if row > 1:
+		if all_pieces[column][row - 1] != null && all_pieces[column][row - 2] != null:
+			if all_pieces[column][row - 1].color == color && all_pieces[column][row - 2].color == color:
+				return true;
+	pass;
 
 func grid_to_pixel(column, row):
 	var new_x = x_start + offset * column;
