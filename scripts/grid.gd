@@ -1,11 +1,13 @@
 extends Node2D
 
+# Grid
 export (int) var width;
 export (int) var heigth;
 export (int) var x_start;
 export (int) var y_start;
 export (int) var offset;
 
+# Piece array
 var possible_pieces = [
 preload("res://scenes/blue_piece.tscn"),
 preload("res://scenes/yellow_piece.tscn"),
@@ -15,7 +17,13 @@ preload("res://scenes/light_green_piece.tscn"),
 preload("res://scenes/green_piece.tscn")
 ];
 
+# Current piece in the scene
 var all_pieces = [];
+
+# Touch
+var first_touch = Vector2(0, 0);
+var final_touch = Vector2(0, 0);
+var controll = false;
 
 func _ready():
 	randomize();
@@ -61,3 +69,41 @@ func grid_to_pixel(column, row):
 	var new_x = x_start + offset * column;
 	var new_y = y_start + (-offset) * row;
 	return Vector2(new_x, new_y);
+
+func pixel_to_grid(pixel_x, pixel_y):
+	var new_x = round((pixel_x - x_start) / offset);
+	var new_y = round((pixel_y - y_start) / (-offset));
+	return Vector2(new_x, new_y);
+
+func is_in_grid(column, row):
+	if column >= 0 && column < width:
+		if row >= 0 && row < heigth:
+			return true;
+	
+	return false;
+
+func touch_input():
+	if Input.is_action_just_pressed("ui_touch"):
+		first_touch = get_global_mouse_position();
+		var grid_position = pixel_to_grid(first_touch.x, first_touch.y);
+		if is_in_grid(grid_position.x, grid_position.y):
+			controll = true;
+	
+	if Input.is_action_just_released("ui_touch"):
+		final_touch = get_global_mouse_position();
+		var grid_position = pixel_to_grid(final_touch.x, final_touch.y);
+		if is_in_grid(grid_position.x, grid_position.y):
+			print('swipe');
+
+func swap_pieces(column, row, direction):
+	var first_piece = all_pieces[column][row];
+	var next_piece = all_pieces[column + direction.x][column + direction.y];
+	
+	all_pieces[column][row] = next_piece;
+	all_pieces[column + direction.x][column + direction.y] = first_piece;
+	
+	first_piece.position = grid_to_pixel(column + direction.x, row + direction.y);
+	next_piece = grid_to_pixel(column, row);
+
+func _process(delta):
+	touch_input();
