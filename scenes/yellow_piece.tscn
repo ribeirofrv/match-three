@@ -4,6 +4,7 @@
 [ext_resource path="res://art/Pieces/Yellow Piece.png" type="Texture" id=2]
 
 [node name="yellow_piece" instance=ExtResource( 1 )]
+color = "yellow"
 
 [node name="sprite" parent="." index="0"]
 texture = ExtResource( 2 )
